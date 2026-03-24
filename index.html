@@ -132,7 +132,6 @@
   <script>
     let selectedRating = 0;
 
-    // Handle star clicks
     document.querySelectorAll(".star").forEach(star => {
       star.addEventListener("click", function() {
         selectedRating = this.getAttribute("data-value");
@@ -158,80 +157,54 @@
         };
             localStorage.setItem('movielsts', JSON.stringify(movielsts));
     }
-/*// 
-<title>Save Form Data in localStorage</title>
-<style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label { display: block; margin-top: 10px; }
-</style>
-</head>
-<body>
 
-<h2>Form with localStorage</h2>
-<form id="userForm">
-    <label>
-        Name:
-        <input type="text" id="name" name="name">
-    </label>
-    <label>
-        Email:
-        <input type="email" id="email" name="email">
-    </label>
-    <label>
-        Message:
-        <textarea id="message" name="message"></textarea>
-    </label>
-    <button type="submit">Submit</button>
-    <button type="button" id="clearData">Clear Saved Data</button>
-</form>
+    function addMovie() {
+      const title = document.getElementById('title').value;
+      const year = document.getElementById('year').value;
+      const genre = document.getElementById('genre').value;
+      const rating = selectedRating;
 
-<script>
-// Function to save form data to localStorage
-function saveFormData() {
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        message: document.getElementById('message').value
-    };
-    localStorage.setItem('formData', JSON.stringify(formData));
-}
+      if (!title || !year || rating == 0) {
+        alert("Please fill in all fields and select a rating.");
+        return;
+      }
 
-// Function to load saved form data from localStorage
-function loadFormData() {
-    const savedData = localStorage.getItem('formData');
-    if (savedData) {
-        try {
-            const data = JSON.parse(savedData);
-            document.getElementById('name').value = data.name || '';
-            document.getElementById('email').value = data.email || '';
-            document.getElementById('message').value = data.message || '';
-        } catch (e) {
-            console.error('Error parsing saved form data:', e);
-        }
+      const newMovie = { title, year, genre, rating };
+
+      const existing = localStorage.getItem('movies');
+      const movies = existing ? JSON.parse(existing) : [];
+
+      movies.push(newMovie);
+      localStorage.setItem('movies', JSON.stringify(movies));
+
+      document.getElementById('title').value = '';
+      document.getElementById('year').value = '';
+      document.getElementById('genre').value = 'Action';
+      selectedRating = 0;
+      updateStars(0);
+
+      displayMovies();
     }
-}
 
-// Function to clear saved form data
-function clearFormData() {
-    localStorage.removeItem('formData');
-    document.getElementById('userForm').reset();
-}
+    function displayMovies() {
+      const movieList = document.getElementById('movieList');
+      movieList.innerHTML = '';
 
-// Attach event listeners
-document.getElementById('userForm').addEventListener('input', saveFormData);
-document.getElementById('clearData').addEventListener('click', clearFormData);
+      const existing = localStorage.getItem('movies');
+      const movies = existing ? JSON.parse(existing) : [];
 
-// Load saved data on page load
-window.addEventListener('DOMContentLoaded', loadFormData);
+      movies.forEach(movie => {
+        const li = document.createElement('li');
+        const stars = '★'.repeat(movie.rating) + '☆'.repeat(5 - movie.rating);
+        li.innerHTML = `
+          <strong>${movie.title}</strong> (${movie.year}) — ${movie.genre}
+          <span class="rating-display">${stars}</span>
+        `;
+        movieList.appendChild(li);
+      });
+    }
 
-// Optional: Clear saved data after form submission
-document.getElementById('userForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevent actual form submission for demo
-    alert('Form submitted!');
-    clearFormData();
-});
-   
-window.onload = displayMovies;
+    window.onload = displayMovies;
   </script>
 </body>
 </html>
